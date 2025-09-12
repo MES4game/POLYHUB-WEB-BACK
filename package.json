@@ -1,0 +1,52 @@
+{
+    "name": "et4-project-web-back",
+    "version": "1.0.0",
+    "description": "Back-end of project \"PolyHUB\" for ET4 web project",
+    "private": true,
+    "main": "build/index.js",
+    "type": "commonjs",
+    "scripts": {
+        "lint": "eslint 'src/**/*.ts' --max-warnings=0",
+        "predev": "npm run lint",
+        "dev": "NODE_ENV='development' tsnd --respawn -r tsconfig-paths/register src/index.ts",
+        "prebuild": "npm run lint",
+        "build": "tsc && tsc-alias",
+        "prestart": "npm run build",
+        "start": "NODE_ENV='production' node build/index.js"
+    },
+    "keywords": [
+        "express",
+        "typescript",
+        "swagger",
+        "eslint"
+    ],
+    "author": "Maxime DAUPHIN, Maël HOUPLINE, Julien TAP",
+    "license": "MIT",
+    "dependencies": {
+        "compression": "1.8.1",
+        "cors": "2.8.5",
+        "express": "5.1.0",
+        "helmet": "8.1.0",
+        "morgan": "1.10.1",
+        "mysql2": "3.14.4",
+        "swagger-jsdoc": "6.2.8",
+        "swagger-ui-express": "5.0.1"
+    },
+    "devDependencies": {
+        "@eslint/js": "9.34.0",
+        "@types/compression": "1.8.1",
+        "@types/cors": "2.8.19",
+        "@types/express": "5.0.3",
+        "@types/morgan": "1.9.10",
+        "@types/node": "24.3.0",
+        "@types/swagger-jsdoc": "6.0.4",
+        "@types/swagger-ui-express": "4.1.8",
+        "eslint": "9.34.0",
+        "ts-node": "10.9.2",
+        "ts-node-dev": "2.0.0",
+        "tsc-alias": "1.8.16",
+        "tsconfig-paths": "4.2.0",
+        "typescript": "5.9.2",
+        "typescript-eslint": "8.41.0"
+    }
+}
