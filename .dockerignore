@@ -1,0 +1,13 @@
+*
+
+!.dockerignore
+!docker/
+!docker/**
+
+!package.json
+!package-lock.json
+!tsconfig.json
+
+!db-init.sql
+!src/
+!src/**
