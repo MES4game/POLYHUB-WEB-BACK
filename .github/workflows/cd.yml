@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    name: Deploy docker image (${{ matrix.environment.replace('production-', '') }})
+    name: Deploy docker image (${{ matrix.environment }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
