@@ -45,7 +45,7 @@ jobs:
             cache-eslint-
 
       - name: Run ESLint
-        run: npm run lint:run
+        run: npm run lint
 
   test:
     name: Run unit tests
@@ -89,7 +89,7 @@ jobs:
             cache-tsbuild-
 
       - name: Build Testing
-        run: npm run build:run
+        run: npm run build -- --lint-skip
 
   analysis:
     name: Run CodeQL analysis

@@ -5,7 +5,7 @@ COPY . .
 RUN ls -al \
     && npm install -g npm@latest \
     && npm ci \
-    && npm run build:run
+    && npm run build -- --lint-skip --build-outDir=/build
 
 # Stage 2: Final image
 FROM node:24-alpine
@@ -21,7 +21,7 @@ RUN chmod +x /entrypoint.sh
 
 WORKDIR /app
 RUN rm -rf ./*
-COPY --from=builder /app/build .
+COPY --from=builder /build .
 RUN ls -al \
     && ls -al /
 
