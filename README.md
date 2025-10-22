@@ -47,13 +47,14 @@ Next steps define how to download the project and run it under a port, you will 
 
 - ### Docker
   - NO need to clone the repository
-  - image: [![Docker Image Version](https://img.shields.io/docker/v/mes4game/polyhub-web-back?sort=semver) ![Docker Image Size](https://img.shields.io/docker/image-size/mes4game/polyhub-web-back?sort=semver)](https://hub.docker.com/r/mes4game/polyhub-web-back)
+  - back image: [![Docker Image Version](https://img.shields.io/docker/v/mes4game/polyhub-web-back?sort=semver)![Docker Image Size](https://img.shields.io/docker/image-size/mes4game/polyhub-web-back?sort=semver)](https://hub.docker.com/r/mes4game/polyhub-web-back)
+  - db image: [![Docker Image Version](https://img.shields.io/docker/v/mes4game/polyhub-web-db?sort=semver)![Docker Image Size](https://img.shields.io/docker/image-size/mes4game/polyhub-web-db?sort=semver)](https://hub.docker.com/r/mes4game/polyhub-web-db)
   - docker-compose:
     1. open a terminal and navigate to the folder where you want to download the `docker-compose.yml` file
-    2. you can find an example of `docker-compose.yml` in the [`docker config`](./.docker/back) folder
-        - you can copy it with `curl -o docker-compose.yml https://raw.githubusercontent.com/MES4game/POLYHUB-WEB-BACK/main/.docker/back/docker-compose.yml`
-    3. you also need to copy [`example.env`](./.docker/back/example.env) to `.env`
-        - you can get it with `curl -o .env https://raw.githubusercontent.com/MES4game/POLYHUB-WEB-BACK/main/.docker/back/example.env`
+    2. you can find an example of `docker-compose.yml` in the [`docker config`](./.docker) folder
+        - you can copy it with `curl -o docker-compose.yml https://raw.githubusercontent.com/MES4game/POLYHUB-WEB-BACK/main/.docker/docker-compose.yml`
+    3. you also need to copy [`example.env`](./.docker/example.env) to `.env`
+        - you can get it with `curl -o .env https://raw.githubusercontent.com/MES4game/POLYHUB-WEB-BACK/main/.docker/example.env`
     4. edit `.env` to your needs
     5. run `docker-compose up -d --force-recreate --pull always` to start the container
 
@@ -64,17 +65,17 @@ Next steps define how to download the project and run it under a port, you will 
 - `.docker`: Docker-related files (Dockerfile, etc.)
 - `.github`: GitHub-related files (workflows, issue templates, etc.)
 - `build`: built files for production (after running `npm run build`) (ignored by git)
+- `db`: database-related files
 - `scripts`: scripts used by `npm run <script>` command
 - `src`: source code (React components, styles, etc.)
-- `.dockerignore`: files to ignore when building the Docker image
 - `.gitignore`: files to ignore by git
-- `db-init.sql`: database initialization script
 - `eslint.config.mjs`: ESLint configuration
 - `LICENSE`: license file (MIT)
 - `package-lock.json`: npm package lock file (exact versions of dependencies)
 - `package.json`: npm package configuration (dependencies, scripts, etc.)
 - `README.md`: this file
 - `tsconfig.json`: TypeScript configuration
+- `tsoa.json`: TSOA configuration (for API documentation)
 
 ---
 
@@ -92,16 +93,19 @@ Next steps define how to download the project and run it under a port, you will 
   - `npm run lint` is run before starting
   - options (`npm run dev -- <option>...`):
     - every those of `lint` command
+    - `--tsoa-skip`: skip TSOA generation
     - `--dev-port=<number>`: specify the port (default: 3000)
 - `npm run build`: build the application for production
   - `npm run lint` is run before building
   - options (`npm run build -- <option>...`):
     - every those of `lint` command
-    - `--build-output-path=<path>`: specify the output path (default: `./build`)
+    - `--tsoa-skip`: skip TSOA generation
+    - `--build-outDir=<path>`: specify the output path (default: `./build`)
 - `npm run start`: start the application in production mode
   - `npm run build` is run before starting
   - options (`npm run start -- <option>...`):
     - every those of `build` command
+    - `--start-port=<number>`: specify the port (default: 3000)
 
 ---
 
@@ -191,14 +195,22 @@ Next steps define how to download the project and run it under a port, you will 
   - `release`: runs on every release PR from `dev` to `main`, generates the release notes and creates a GitHub release
 
 - ### Secrets
-  - `DOCKERHUB_TOKEN`: Docker Hub token for pushing images (make it inside an environment named `production` to restrict access only to the main branch and version tags)
-  - `ADMIN_TOKEN`: Admin GitHub user token with contents write permission on that repo (make it inside an environment named `release` to restrict access only to the dev branch)
+  - Global secrets:
+  - Environment secrets:
+    - `production-db` and `production-back`:
+      - `DOCKERHUB_TOKEN`: Docker Hub token for pushing images
+    - `release`:
+      - `ADMIN_TOKEN`: Admin GitHub user token with contents write permission on that repository
 
 - ### Variables
-  - `DOCKERHUB_USERNAME`: Docker Hub username
-  - `DOCKERHUB_IMAGE`: Docker Hub image name
-  - `DOCKER_BUILD_CONTEXT`: Docker build context (default: `.`)
-  - `DOCKER_CONFIG_FOLDER`: Docker config folder (default: `./.docker`)
+  - Global variables:
+  - Environment variables:
+    - `production-db` and `production-back`:
+      - `DOCKERHUB_USERNAME`: Docker Hub username
+      - `DOCKERHUB_IMAGE`: Docker Hub image name
+      - `DOCKER_BUILD_CONTEXT`: Docker build context (default: `.`)
+      - `DOCKER_CONFIG_FOLDER`: Docker config folder (default: `./.docker`)
+    - `release`:
 
 - ### Settings
   - #### [General](https://github.com/MES4game/POLYHUB-WEB-BACK/settings)
@@ -225,218 +237,217 @@ Next steps define how to download the project and run it under a port, you will 
 
   - #### [Rules](https://github.com/MES4game/POLYHUB-WEB-BACK/settings/rules)
     - `no branches`:
-```json
-{
-  "name": "no branches",
-  "target": "branch",
-  "source_type": "Repository",
-  "enforcement": "active",
-  "conditions": {
-    "ref_name": {
-      "exclude": [
-        "refs/heads/main",
-        "refs/heads/dev",
-        "refs/heads/dev-*",
-        "refs/heads/scrum*",
-        "refs/heads/SCRUM*"
-      ],
-      "include": [
-        "~ALL"
-      ]
-    }
-  },
-  "rules": [
-    {
-      "type": "deletion"
-    },
-    {
-      "type": "non_fast_forward"
-    },
-    {
-      "type": "update"
-    },
-    {
-      "type": "creation"
-    }
-  ],
-  "bypass_actors": []
-}
-```
+        ```json
+        {
+          "name": "no branches",
+          "target": "branch",
+          "source_type": "Repository",
+          "enforcement": "active",
+          "conditions": {
+            "ref_name": {
+              "exclude": [
+                "refs/heads/main",
+                "refs/heads/dev",
+                "refs/heads/dev-*",
+                "refs/heads/scrum*",
+                "refs/heads/SCRUM*"
+              ],
+              "include": [
+                "~ALL"
+              ]
+            }
+          },
+          "rules": [
+            {
+              "type": "deletion"
+            },
+            {
+              "type": "non_fast_forward"
+            },
+            {
+              "type": "update"
+            },
+            {
+              "type": "creation"
+            }
+          ],
+          "bypass_actors": []
+        }
+        ```
     - `protected branches`:
-```json
-{
-  "name": "protected branches",
-  "target": "branch",
-  "source_type": "Repository",
-  "enforcement": "active",
-  "conditions": {
-    "ref_name": {
-      "exclude": [],
-      "include": [
-        "refs/heads/main",
-        "refs/heads/dev",
-        "refs/heads/rendu"
-      ]
-    }
-  },
-  "rules": [
-    {
-      "type": "deletion"
-    },
-    {
-      "type": "non_fast_forward"
-    },
-    {
-      "type": "creation"
-    },
-    {
-      "type": "pull_request",
-      "parameters": {
-        "required_approving_review_count": 1,
-        "dismiss_stale_reviews_on_push": true,
-        "require_code_owner_review": true,
-        "require_last_push_approval": false,
-        "required_review_thread_resolution": true,
-        "automatic_copilot_code_review_enabled": false,
-        "allowed_merge_methods": [
-          "merge"
-        ]
-      }
-    },
-    {
-      "type": "required_status_checks",
-      "parameters": {
-        "strict_required_status_checks_policy": true,
-        "do_not_enforce_on_create": true,
-        "required_status_checks": [
-          {
-            "context": "Run CodeQL analysis (actions, none)"
+        ```json
+        {
+          "name": "protected branches",
+          "target": "branch",
+          "source_type": "Repository",
+          "enforcement": "active",
+          "conditions": {
+            "ref_name": {
+              "exclude": [],
+              "include": [
+                "refs/heads/main",
+                "refs/heads/dev"
+              ]
+            }
           },
-          {
-            "context": "Run CodeQL analysis (javascript-typescript, none)"
-          },
-          {
-            "context": "Run build for testing"
-          },
-          {
-            "context": "Run lint scanning"
-          },
-          {
-            "context": "Run unit tests"
-          }
-        ]
-      }
-    },
-    {
-      "type": "code_scanning",
-      "parameters": {
-        "code_scanning_tools": [
-          {
-            "tool": "CodeQL",
-            "security_alerts_threshold": "high_or_higher",
-            "alerts_threshold": "errors"
-          }
-        ]
-      }
-    }
-  ],
-  "bypass_actors": []
-}
-```
+          "rules": [
+            {
+              "type": "deletion"
+            },
+            {
+              "type": "non_fast_forward"
+            },
+            {
+              "type": "creation"
+            },
+            {
+              "type": "pull_request",
+              "parameters": {
+                "required_approving_review_count": 1,
+                "dismiss_stale_reviews_on_push": true,
+                "require_code_owner_review": true,
+                "require_last_push_approval": false,
+                "required_review_thread_resolution": true,
+                "automatic_copilot_code_review_enabled": false,
+                "allowed_merge_methods": [
+                  "merge"
+                ]
+              }
+            },
+            {
+              "type": "required_status_checks",
+              "parameters": {
+                "strict_required_status_checks_policy": true,
+                "do_not_enforce_on_create": true,
+                "required_status_checks": [
+                  {
+                    "context": "Run CodeQL analysis (actions, none)"
+                  },
+                  {
+                    "context": "Run CodeQL analysis (javascript-typescript, none)"
+                  },
+                  {
+                    "context": "Run build for testing"
+                  },
+                  {
+                    "context": "Run lint scanning"
+                  },
+                  {
+                    "context": "Run unit tests"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "code_scanning",
+              "parameters": {
+                "code_scanning_tools": [
+                  {
+                    "tool": "CodeQL",
+                    "security_alerts_threshold": "high_or_higher",
+                    "alerts_threshold": "errors"
+                  }
+                ]
+              }
+            }
+          ],
+          "bypass_actors": []
+        }
+        ```
     - `dev branches`:
-```json
-{
-  "name": "dev branches",
-  "target": "branch",
-  "source_type": "Repository",
-  "enforcement": "active",
-  "conditions": {
-    "ref_name": {
-      "exclude": [],
-      "include": [
-        "refs/heads/dev-*",
-        "refs/heads/scrum*",
-        "refs/heads/SCRUM*"
-      ]
-    }
-  },
-  "rules": [
-    {
-      "type": "deletion"
-    },
-    {
-      "type": "non_fast_forward"
-    },
-    {
-      "type": "required_signatures"
-    }
-  ],
-  "bypass_actors": []
-}
-```
+        ```json
+        {
+          "name": "dev branches",
+          "target": "branch",
+          "source_type": "Repository",
+          "enforcement": "active",
+          "conditions": {
+            "ref_name": {
+              "exclude": [],
+              "include": [
+                "refs/heads/dev-*",
+                "refs/heads/scrum*",
+                "refs/heads/SCRUM*"
+              ]
+            }
+          },
+          "rules": [
+            {
+              "type": "deletion"
+            },
+            {
+              "type": "non_fast_forward"
+            },
+            {
+              "type": "required_signatures"
+            }
+          ],
+          "bypass_actors": []
+        }
+        ```
     - `no tags`:
-```json
-{
-  "name": "no tags",
-  "target": "tag",
-  "source_type": "Repository",
-  "enforcement": "active",
-  "conditions": {
-    "ref_name": {
-      "exclude": [
-        "refs/tags/v*.*.*"
-      ],
-      "include": [
-        "~ALL"
-      ]
-    }
-  },
-  "rules": [
-    {
-      "type": "deletion"
-    },
-    {
-      "type": "non_fast_forward"
-    },
-    {
-      "type": "creation"
-    },
-    {
-      "type": "update"
-    }
-  ],
-  "bypass_actors": []
-}
-```
+        ```json
+        {
+          "name": "no tags",
+          "target": "tag",
+          "source_type": "Repository",
+          "enforcement": "active",
+          "conditions": {
+            "ref_name": {
+              "exclude": [
+                "refs/tags/v*.*.*"
+              ],
+              "include": [
+                "~ALL"
+              ]
+            }
+          },
+          "rules": [
+            {
+              "type": "deletion"
+            },
+            {
+              "type": "non_fast_forward"
+            },
+            {
+              "type": "creation"
+            },
+            {
+              "type": "update"
+            }
+          ],
+          "bypass_actors": []
+        }
+        ```
     - `version tags`:
-```json
-{
-  "name": "version tags",
-  "target": "tag",
-  "source_type": "Repository",
-  "enforcement": "active",
-  "conditions": {
-    "ref_name": {
-      "exclude": [],
-      "include": [
-        "refs/tags/v*.*.*"
-      ]
-    }
-  },
-  "rules": [
-    {
-      "type": "deletion"
-    },
-    {
-      "type": "non_fast_forward"
-    },
-    {
-      "type": "update"
-    }
-  ],
-  "bypass_actors": []
-}
-```
+        ```json
+        {
+          "name": "version tags",
+          "target": "tag",
+          "source_type": "Repository",
+          "enforcement": "active",
+          "conditions": {
+            "ref_name": {
+              "exclude": [],
+              "include": [
+                "refs/tags/v*.*.*"
+              ]
+            }
+          },
+          "rules": [
+            {
+              "type": "deletion"
+            },
+            {
+              "type": "non_fast_forward"
+            },
+            {
+              "type": "update"
+            }
+          ],
+          "bypass_actors": []
+        }
+        ```
 
   - #### [Actions](https://github.com/MES4game/POLYHUB-WEB-BACK/settings/actions)
     - `Actions permissions`: Allow all actions and reusable workflows
@@ -446,7 +457,7 @@ Next steps define how to download the project and run it under a port, you will 
     - `Allow GitHub Actions to create and approve pull requests`: false
 
   - #### [Environments](https://github.com/MES4game/POLYHUB-WEB-BACK/settings/environments)
-    - `production`: for CD action
+    - `production-db` and `production-back`: for CD action
       - `Deployment protection rules`:
         - `Required reviewers`:
           - `reviewers`: only super-admins
@@ -459,6 +470,11 @@ Next steps define how to download the project and run it under a port, you will 
           - `v*.*.*`
       - `Environment secrets`:
         - `DOCKERHUB_TOKEN`: Docker Hub token for pushing images
+      - `Environment variables`:
+        - `DOCKERHUB_USERNAME`: Docker Hub username
+        - `DOCKERHUB_IMAGE`: Docker Hub image name
+        - `DOCKER_BUILD_CONTEXT`: Docker build context (default: `.`)
+        - `DOCKER_CONFIG_FOLDER`: Docker config folder (default: `./.docker`)
     - `release`: for release workflow
       - `Deployment protection rules`:
         - `Required reviewers`:

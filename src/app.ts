@@ -4,8 +4,10 @@ import compression from "compression";
 import cors from "cors";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
-import { SWAGGER_DOCUMENTATION, SWAGGER_OPTIONS } from "@/config/swagger.config";
-import routes from "@/routes/routes";
+import { ENV } from "@/config/env.config";
+import { errorHandler } from "@/middlewares/error.middleware";
+import { RegisterRoutes } from "@/routes/routes";
+import * as SWAGGER_SPEC from "@/swagger.json";
 
 const app = express();
 
@@ -18,14 +20,20 @@ app.use(express.json({ limit: "10kb" }));
 app.use(morgan("combined"));
 
 app.use(cors({
-    origin: process.env.NODE_ENV === "production" ? `https://${process.env.DOMAIN ?? ''}` : `https://dev.${process.env.DOMAIN ?? ''}`
+    origin     : `https://${ENV.dev ? "dev." : ""}${ENV.host}`,
+    credentials: true,
 }));
 
-// Swagger docs
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(SWAGGER_DOCUMENTATION, SWAGGER_OPTIONS));
-
+/* eslint-disable */
 // Routes
-app.use("/", routes);
-app.use("/api", swaggerUi.serve, swaggerUi.setup(SWAGGER_DOCUMENTATION));
+RegisterRoutes(app);
+
+// Swagger docs
+app.use("/api", swaggerUi.serve, swaggerUi.setup(SWAGGER_SPEC));
+// app.get("/docs.json", (_: Request, res: Response) => { res.status(200).json(SWAGGER_SPEC); });
+/* eslint-enable */
+
+// Error handler
+app.use(errorHandler);
 
 export default app;

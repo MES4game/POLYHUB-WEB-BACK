@@ -89,7 +89,7 @@ jobs:
             cache-tsbuild-
 
       - name: Build Testing
-        run: npm run build:run -- --output-path=build
+        run: npm run build:run
 
   analysis:
     name: Run CodeQL analysis

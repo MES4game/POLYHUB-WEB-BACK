@@ -18,6 +18,11 @@
 !scripts/
 !scripts/**
 
-!db-init.sql
+!tsoa.json
+!db/
+!db/**
 !src/
 !src/**
+src/swagger.json
+src/routes/**
+!src/routes/.gitkeep

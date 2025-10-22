@@ -12,7 +12,7 @@ async function main() {
             console.log("Skipping linter");
             process.exit(0);
         }
-        await runNpmScript(filtered.includes("--nibble") ? "nibble:run" : "lint:run", filtered);
+        await runNpmScript(filtered.includes("--nibble") ? "nibble:run" : "lint:run", filtered, true);
     } catch (err) {
         console.error(err.message);
         process.exit(1);

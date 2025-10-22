@@ -1,0 +1,22 @@
+{
+    "entryFile": "src/index.ts",
+    "noImplicitAdditionalProperties": "throw-on-extras", 
+    "controllerPathGlobs": ["src/controllers/**/*.controller.ts"],
+    "spec": {
+        "outputDirectory": "src",
+        "specVersion": 3,
+        "securityDefinitions": {
+            "auth": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "routes": {
+        "routesDir": "src/routes",
+        "authenticationModule": "src/middlewares/auth.middleware.ts",
+        "esm": true
+    },
+    "tsNoCheck": true
+}

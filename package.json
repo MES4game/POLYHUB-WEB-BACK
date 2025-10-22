@@ -1,5 +1,5 @@
 {
-    "name": "et4-project-web-back",
+    "name": "polyhub-web-back",
     "version": "1.0.0",
     "description": "Back-end of project \"PolyHUB\" for ET4 web project",
     "private": true,
@@ -12,8 +12,13 @@
         "start": "node scripts/start.mjs",
         "lint:run": "eslint 'src/**/*.[jt]s' --max-warnings=0 --cache",
         "nibble:run": "eslint-nibble 'src/**/*.[jt]s' --cache",
-        "dev:run": "NODE_ENV='development' tsnd --respawn -r tsconfig-paths/register src/index.ts",
-        "build:run": "tsc && tsc-alias",
+        "tsoa:spec": "tsoa spec",
+        "tsoa:routes": "tsoa routes",
+        "posttsoa:routes": "sed -i '1i// @ts-nocheck' src/routes/routes.ts && sed -i '1i/* eslint-disable */' src/routes/routes.ts",
+        "tsoa:gen": "npm run tsoa:spec && npm run tsoa:routes",
+        "dev:run": "NODE_ENV='development' tsx watch src/index.ts",
+        "build:run": "tsc",
+        "postbuild:run": "tsc-alias",
         "start:run": "NODE_ENV='production' node build/index.js"
     },
     "keywords": [
@@ -26,14 +31,18 @@
     "author": "Maxime DAUPHIN, Maël HOUPLINE, Julien TAP",
     "license": "MIT",
     "dependencies": {
+        "bcryptjs": "3.0.2",
         "compression": "1.8.1",
         "cors": "2.8.5",
         "express": "5.1.0",
         "helmet": "8.1.0",
+        "jsonwebtoken": "9.0.2",
         "morgan": "1.10.1",
-        "mysql2": "3.15.2",
+        "mysql2": "3.15.3",
+        "nodemailer": "7.0.9",
         "swagger-jsdoc": "6.2.8",
-        "swagger-ui-express": "5.0.1"
+        "swagger-ui-express": "5.0.1",
+        "tsoa": "6.6.0"
     },
     "devDependencies": {
         "@eslint/js": "9.38.0",
@@ -41,20 +50,20 @@
         "@types/compression": "1.8.1",
         "@types/cors": "2.8.19",
         "@types/express": "5.0.3",
+        "@types/jsonwebtoken": "9.0.10",
         "@types/morgan": "1.9.10",
-        "@types/node": "^24.6.2",
+        "@types/node": "^24.0.0",
+        "@types/nodemailer": "7.0.2",
         "@types/swagger-jsdoc": "6.0.4",
         "@types/swagger-ui-express": "4.1.8",
-        "@typescript-eslint/eslint-plugin": "8.46.1",
-        "@typescript-eslint/parser": "8.46.1",
+        "@typescript-eslint/eslint-plugin": "8.46.2",
+        "@typescript-eslint/parser": "8.46.2",
         "eslint": "9.38.0",
         "eslint-nibble": "9.1.0",
-        "node": "^24.9.0",
-        "ts-node": "10.9.2",
-        "ts-node-dev": "2.0.0",
+        "node": "^24.0.0",
         "tsc-alias": "1.8.16",
-        "tsconfig-paths": "4.2.0",
+        "tsx": "4.20.6",
         "typescript": "5.9.3",
-        "typescript-eslint": "8.46.1"
+        "typescript-eslint": "8.46.2"
     }
 }

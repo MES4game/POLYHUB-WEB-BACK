@@ -544,7 +544,6 @@ const STYLISTIC_RULES = {
             ImportDeclaration                            : "first",
             flatTernaryExpressions                       : false,
             offsetTernaryExpressions                     : false,
-            offsetTernaryExpressionsOffsetCallExpressions: false,
             assignmentOperator                           : 1,
             ignoredNodes                                 : [],
             ignoreComments                               : false,
