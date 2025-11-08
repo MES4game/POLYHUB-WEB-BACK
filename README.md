@@ -42,8 +42,8 @@ Next steps define how to download the project and run it under a port, you will 
   - need to have npm
   1. open a terminal at the root of the cloned repository
   2. run `npm ci`
-  3. for development: run `npm run dev -- --lint-skip --dev-port=<number>` and replace `<port>` with the port you want
-  4. for production: run `npm run start -- --lint-skip --build-output-path=<path>` and replace `<path>` with the path of the folder you want (it needs to be created before)
+  3. for development: run `npm run dev -- --lint-skip --dev-port=<port>` and replace `<port>` with the port you want
+  4. for production: run `npm run start -- --lint-skip --start-port=<port>` and replace `<port>` with the port you want
 
 - ### Docker
   - NO need to clone the repository
@@ -89,17 +89,24 @@ Next steps define how to download the project and run it under a port, you will 
     - `--lint-skip`: skip linting
     - `--lint-fix`: automatically fix problems
     - `--lint-nibble`: format output to more readable format
+- `npm run tsoa`: generate TSOA files (controllers and swagger)
+  - options (`npm run tsoa -- <option>...`):
+    - `--tsoa-skip`: skip TSOA generation
+    - `--tsoa-skip-spec`: skip swagger generation
+    - `--tsoa-skip-routes`: skip routes generation 
 - `npm run dev`: run the application in development mode (with hot-reloading)
   - `npm run lint` is run before starting
+  - `npm run tsoa` is run before starting
   - options (`npm run dev -- <option>...`):
     - every those of `lint` command
-    - `--tsoa-skip`: skip TSOA generation
+    - every those of `tsoa` command
     - `--dev-port=<number>`: specify the port (default: 3000)
 - `npm run build`: build the application for production
   - `npm run lint` is run before building
+  - `npm run tsoa` is run before building
   - options (`npm run build -- <option>...`):
     - every those of `lint` command
-    - `--tsoa-skip`: skip TSOA generation
+    - every those of `tsoa` command
     - `--build-outDir=<path>`: specify the output path (default: `./build`)
 - `npm run start`: start the application in production mode
   - `npm run build` is run before starting
