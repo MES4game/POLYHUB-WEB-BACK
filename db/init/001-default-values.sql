@@ -1,23 +1,28 @@
 INSERT INTO `users` (`email`, `pseudo`, `firstname`, `lastname`, `verified_email`) VALUES ('admin@example.com', 'ADMIN', 'administrator', '', TRUE);
 
-INSERT INTO `roles` (`title`) VALUES
-    ('Admin'),
-    ('Moderator'),
-    ('Teacher'),
-    ('Speaker');
+INSERT INTO `roles` (`name`) VALUES
+    ('admin'),
+    ('moderator'),
+    ('teacher');
 
-INSERT INTO `users_roles` (`user_id`, `role_id`) VALUES (1, 1);
+INSERT INTO `users_roles` (`user_id`, `role_id`) VALUES (1, 1), (1, 2);
 
-INSERT INTO `slots` (`start`, `end`) VALUES
-    ('08:15:00', '10:15:00'),
-    ('10:30:00', '12:30:00'),
-    ('08:30:00', '15:30:00'),
-    ('15:45:00', '17:45:00'),
-    ('08:15:00', '12:15:00'),
-    ('08:30:00', '12:30:00'),
-    ('13:30:00', '17:30:00'),
-    ('08:30:00', '11:30:00'),
-    ('13:30:00', '16:30:00');
+INSERT INTO `groups` (`parent_id`, `name`, `description`) VALUES
+    (NULL, 'Administration', 'Groupe des administrateurs de l''école'),
+    (NULL, 'Etudiants', 'Groupe des étudiants'),
+    (NULL, 'PEIP1', 'Groupe des étudiants PEIP1'),
+    (NULL, 'PEIP2', 'Groupe des étudiants PEIP2'),
+    (NULL, '3A', 'Groupe des étudiants 3A'),
+    (NULL, '4A', 'Groupe des étudiants 4A'),
+    (NULL, '5A', 'Groupe des étudiants 5A'),
+    (5, 'ET3', 'Groupe des étudiants ET3'),
+    (5, 'APP3', 'Groupe des étudiants APP3'),
+    (5, 'FC1', 'Groupe des étudiants FC1'),
+    (6, 'ET4', 'Groupe des étudiants ET4'),
+    (6, 'APP4', 'Groupe des étudiants APP4'),
+    (6, 'FC2', 'Groupe des étudiants FC2'),
+    (7, 'ET5', 'Groupe des étudiants ET5'),
+    (7, 'APP5', 'Groupe des étudiants APP5');
 
 INSERT INTO `buildings` (`name`, `description`) VALUES
     ('620', 'Bâtiment 620. Addresse: Maison de l''Ingénieur, Rue Louis de Broglie, 91400 Orsay'),
@@ -161,9 +166,23 @@ INSERT INTO `rooms` (`building_id`, `name`, `description`) VALUES
     (4, '441', 'Salle 441 (dbl)'),
     (4, '443', 'Salle 443 (dbl)');
 
-INSERT INTO `lesson_types` (`title`) VALUES
-    ('CM'),
-    ('TD'),
-    ('TP'),
-    ('Conférence'),
-    ('Evènement');
+INSERT INTO `room_features` (`name`, `description`) VALUES
+    ('Projecteur', 'Salle équipée d''un projecteur'),
+    ('Ordinateurs', 'Salle équipée d''ordinateurs'),
+    ('Vidéo conférence', 'Salle équipée pour la visioconférence'),
+    ('Tableau noir', 'Salle équipée d''un tableau noir'),
+    ('Tableau blanc', 'Salle équipée d''un tableau blanc'),
+    ('Tableau interactif', 'Salle équipée d''un tableau interactif');
+
+INSERT INTO `lessons` (`name`, `description`) VALUES
+    ('Mathématiques', 'Cours de mathématiques'),
+    ('Physique', 'Cours de physique'),
+    ('Informatique', 'Cours d''informatique'),
+    ('Chimie', 'Cours de chimie'),
+    ('Biologie', 'Cours de biologie');
+
+INSERT INTO `lesson_types` (`name`, `description`) VALUES
+    ('CM', 'Cours Magistral'),
+    ('TD', 'Travaux Dirigés'),
+    ('TP', 'Travaux Pratiques'),
+    ('Evènement', 'Evènement divers');

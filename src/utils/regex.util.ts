@@ -11,6 +11,8 @@ export function isValidDomain(domain: string): boolean {
 }
 
 export function isValidEmail(email: string): boolean {
+    if (email.length > 512) return false;
+
     const index = email.indexOf("@");
     if (index === -1) return false;
 

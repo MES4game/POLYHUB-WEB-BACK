@@ -44,11 +44,9 @@ export async function register(body: BodyRegister): Promise<ServiceResponse<stri
     ))[0].insertId;
 
     try {
-        const hashed_pass = await bcrypt.hash(body.password, 15);
-
         await DB.execute(
-            "INSERT INTO `users_hashed_pass` (`user_id`, `value`) VALUES (?, ?)",
-            [id, hashed_pass],
+            "INSERT INTO `users_hashed_pass` (`user_id`, `hashed_pass`) VALUES (?, ?)",
+            [id, await bcrypt.hash(body.password, 15)],
         );
     }
     catch {
@@ -77,7 +75,9 @@ export async function verifyEmail(token: string): Promise<ServiceResponse<string
 
     const { id } = verifyToken(token, mapAuthToken);
 
-    await DB.execute("UPDATE `users` SET `validated_email` = true WHERE `id` = ?", [id]);
+    if (id == -1) throw new Error("Invalid token");
+
+    await DB.execute("UPDATE `users` SET `verified_email` = true WHERE `id` = ?", [id]);
 
     return { code: 200, body: "Email verified successfully." };
 }
@@ -100,12 +100,13 @@ export async function login(body: BodyLogin): Promise<ServiceResponse<string>> {
 
     const user = mapUser(rows[0] ?? {});
 
-    if (!user.validated_email) throw new Error("Email not verified");
+    if (!user.verified_email) throw new Error("Email not verified");
 
-    const user_hashed_password = mapUserHashedPassword(
-        (await DB.execute<RowDataPacket[]>("SELECT * FROM `users_hashed_pass` WHERE `user_id` = ?", [user.id]))[0][0],
-    );
-    const is_match = await bcrypt.compare(body.password, user_hashed_password.value);
+    const user_hashed_password = mapUserHashedPassword((await DB.execute<RowDataPacket[]>(
+        "SELECT * FROM `users_hashed_pass` WHERE `user_id` = ?",
+        [user.id],
+    ))[0][0]);
+    const is_match = await bcrypt.compare(body.password, user_hashed_password.hashed_pass);
     if (!is_match) throw new Error("Invalid password");
 
     const token = issueToken(mapAuthToken({ id: user.id }), user.id.toString(), "6h", false);

@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `users` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `email` VARCHAR(512) UNIQUE NOT NULL,
-    `pseudo` VARCHAR(64) UNIQUE NOT NULL,
+    `pseudo` VARCHAR(64) NOT NULL,
     `firstname` VARCHAR(256) NOT NULL,
     `lastname` VARCHAR(256) NOT NULL,
     `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS `users_hashed_pass` (
 
 CREATE TABLE IF NOT EXISTS `roles` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    `title` VARCHAR(128) UNIQUE NOT NULL
+    `name` VARCHAR(128) UNIQUE NOT NULL,
+    `description` TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `users_roles` (
@@ -41,8 +42,9 @@ CREATE TABLE IF NOT EXISTS `users_roles` (
 CREATE TABLE IF NOT EXISTS `groups` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `parent_id` BIGINT UNSIGNED NULL,
-    `title` VARCHAR(128) NOT NULL,
-    UNIQUE(`parent_id`, `title`),
+    `name` VARCHAR(128) NOT NULL,
+    `description` TEXT NULL,
+    UNIQUE(`parent_id`, `name`),
     FOREIGN KEY (`parent_id`)
         REFERENCES `groups`(`id`)
         ON DELETE CASCADE
@@ -61,13 +63,6 @@ CREATE TABLE IF NOT EXISTS `users_groups` (
         REFERENCES `groups`(`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS `slots` (
-    `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    `start` TIME NOT NULL,
-    `end` TIME NOT NULL,
-    UNIQUE(`start`, `end`)
 );
 
 CREATE TABLE IF NOT EXISTS `buildings` (
@@ -89,14 +84,36 @@ CREATE TABLE IF NOT EXISTS `rooms` (
         ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS `room_features` (
+    `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    `name` VARCHAR(128) UNIQUE NOT NULL,
+    `description` TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `rooms_room_features` (
+    `room_id` BIGINT UNSIGNED NOT NULL,
+    `room_feature_id` BIGINT UNSIGNED NOT NULL,
+    UNIQUE(`room_id`, `room_feature_id`),
+    FOREIGN KEY (`room_id`)
+        REFERENCES `rooms`(`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (`room_feature_id`)
+        REFERENCES `room_features`(`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS `lessons` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    `title` VARCHAR(64) UNIQUE NOT NULL
+    `name` VARCHAR(64) UNIQUE NOT NULL,
+    `description` TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `lesson_types` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    `title` VARCHAR(64) UNIQUE NOT NULL
+    `name` VARCHAR(64) UNIQUE NOT NULL,
+    `description` TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `lessons_groups` (
@@ -121,21 +138,11 @@ CREATE TABLE IF NOT EXISTS `lessons_groups` (
 
 CREATE TABLE IF NOT EXISTS `events` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    `day` DATE NOT NULL,
-    `slot_id` BIGINT UNSIGNED NOT NULL,
-    `room_id` BIGINT UNSIGNED NULL,
+    `start` DATETIME NOT NULL,
+    `end` DATETIME NOT NULL,
     `lesson_id` BIGINT UNSIGNED NULL,
     `lesson_type_id` BIGINT UNSIGNED NULL,
     `lesson_arg` TINYINT UNSIGNED NULL,
-    UNIQUE(`day`, `slot_id`, `room_id`),
-    FOREIGN KEY (`slot_id`)
-        REFERENCES `slots`(`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY (`room_id`)
-        REFERENCES `rooms`(`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
     FOREIGN KEY (`lesson_id`)
         REFERENCES `lessons`(`id`)
         ON DELETE CASCADE
@@ -143,9 +150,19 @@ CREATE TABLE IF NOT EXISTS `events` (
     FOREIGN KEY (`lesson_type_id`)
         REFERENCES `lesson_types`(`id`)
         ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `events_rooms` (
+    `event_id` BIGINT UNSIGNED NOT NULL,
+    `room_id` BIGINT UNSIGNED NOT NULL,
+    UNIQUE(`event_id`, `room_id`),
+    FOREIGN KEY (`event_id`)
+        REFERENCES `events`(`id`)
+        ON DELETE CASCADE
         ON UPDATE CASCADE,
-    FOREIGN KEY (`lesson_arg`)
-        REFERENCES `lessons_groups`(`lesson_arg`)
+    FOREIGN KEY (`room_id`)
+        REFERENCES `rooms`(`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
