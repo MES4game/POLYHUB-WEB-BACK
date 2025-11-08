@@ -6,7 +6,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { ENV } from "@/config/env.config";
 import { errorHandler } from "@/middlewares/error.middleware";
-import { RegisterRoutes } from "@/routes/routes";
+import { RegisterRoutes } from "@/routes";
 import * as SWAGGER_SPEC from "@/swagger.json";
 
 const app = express();
@@ -30,7 +30,6 @@ RegisterRoutes(app);
 
 // Swagger docs
 app.use("/api", swaggerUi.serve, swaggerUi.setup(SWAGGER_SPEC));
-// app.get("/docs.json", (_: Request, res: Response) => { res.status(200).json(SWAGGER_SPEC); });
 /* eslint-enable */
 
 // Error handler
