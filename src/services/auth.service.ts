@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { ENV } from "@/config/env.config";
 import { DB } from "@/config/db.config";
 import { TRANSPORTER } from "@/config/mail.config";
@@ -7,14 +7,14 @@ import { issueToken, verifyToken } from "@/config/jwt.config";
 import { ServiceResponse } from "@/models/common.model";
 import { mapAuthToken, BodyRegister, BodyLogin } from "@/models/auth.model";
 import { mapUser, mapUserHashedPassword } from "@/models/user.model";
-import { isValidEmail, isValidPassword, isValidUser } from "@/utils/regex.util";
+import { isValidEmail, isValidPassword, isValidPseudo } from "@/utils/regex.util";
 
 export async function register(body: BodyRegister): Promise<ServiceResponse<string>> {
     if (!isValidEmail(body.email)) {
         throw new Error("No email given or bad format");
     }
 
-    if (!isValidUser(body.pseudo)) {
+    if (!isValidPseudo(body.pseudo)) {
         throw new Error("No pseudo given or bad format (4-64 characters and /^(?:[\\w!#$%&'*+/=?^_`{|}~-]+\\.)+[\\w!#$%&'*+/=?^_`{|}~-]+$/)");
     }
 
@@ -30,24 +30,18 @@ export async function register(body: BodyRegister): Promise<ServiceResponse<stri
         throw new Error("No lastname given or bad format (1-64 characters)");
     }
 
-    if ((await DB.execute<RowDataPacket[]>("SELECT * FROM `users` WHERE `email` = ?", [body.email]))[0].length > 0) {
+    if ((await DB.execute<RowDataPacket[]>("SELECT * FROM `users` WHERE `email` = ? LIMIT 1", [body.email]))[0].length > 0) {
         throw new Error("Email already used by another user");
     }
 
-    if ((await DB.execute<RowDataPacket[]>("SELECT * FROM `users` WHERE `pseudo` = ?", [body.pseudo]))[0].length > 0) {
+    if ((await DB.execute<RowDataPacket[]>("SELECT * FROM `users` WHERE `pseudo` = ? LIMIT 1", [body.pseudo]))[0].length > 0) {
         throw new Error("Pseudo already used by another user");
     }
 
-    await DB.execute(
+    const id = (await DB.execute<ResultSetHeader>(
         "INSERT INTO `users` (`email`, `pseudo`, `firstname`, `lastname`) VALUES (?, ?, ?, ?)",
         [body.email, body.pseudo, body.firstname, body.lastname],
-    );
-
-    const [rows] = await DB.execute<RowDataPacket[]>(
-        "SELECT * FROM `users` WHERE `email` = ? AND `pseudo` = ?",
-        [body.email, body.pseudo],
-    );
-    const { id } = mapUser(rows[0] ?? {});
+    ))[0].insertId;
 
     try {
         const hashed_pass = await bcrypt.hash(body.password, 15);
@@ -66,7 +60,7 @@ export async function register(body: BodyRegister): Promise<ServiceResponse<stri
         throw new Error("Error while registration, please retry");
     }
 
-    const verification_token = issueToken(mapAuthToken({ id }), id.toString(), "1h", true);
+    const verification_token = issueToken(mapAuthToken({ id: id }), id.toString(), "1h", true);
 
     await TRANSPORTER.sendMail({
         from   : ENV.smtp_user,
@@ -78,7 +72,7 @@ export async function register(body: BodyRegister): Promise<ServiceResponse<stri
     return { code: 200, body: "User registered, please verify your email." };
 }
 
-export async function verify(token: string): Promise<ServiceResponse<string>> {
+export async function verifyEmail(token: string): Promise<ServiceResponse<string>> {
     if (!token) throw new Error("No token found");
 
     const { id } = verifyToken(token, mapAuthToken);
@@ -89,7 +83,7 @@ export async function verify(token: string): Promise<ServiceResponse<string>> {
 }
 
 export async function login(body: BodyLogin): Promise<ServiceResponse<string>> {
-    if (!isValidEmail(body.email_pseudo) && !isValidUser(body.email_pseudo)) {
+    if (!isValidEmail(body.email_pseudo) && !isValidPseudo(body.email_pseudo)) {
         throw new Error("No email/pseudo given or bad format");
     }
 
@@ -98,7 +92,7 @@ export async function login(body: BodyLogin): Promise<ServiceResponse<string>> {
     }
 
     const [rows] = await DB.execute<RowDataPacket[]>(
-        "SELECT * FROM `users` WHERE `email` = ? OR `pseudo` = ?",
+        "SELECT * FROM `users` WHERE `email` = ? OR `pseudo` = ? LIMIT 1",
         [body.email_pseudo, body.email_pseudo],
     );
 

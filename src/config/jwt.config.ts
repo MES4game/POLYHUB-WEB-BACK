@@ -33,6 +33,6 @@ export function verifyToken<T>(token: string, mapT: (obj: Record<string, unknown
         return mapT(decoded);
     }
     catch {
-        return {} as T;
+        return mapT({});
     }
 }
