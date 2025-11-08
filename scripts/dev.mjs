@@ -10,8 +10,7 @@ async function main() {
 
     try {
         await runNpmScript("lint", others);
-        if (! others.includes("--tsoa-skip")) await runNpmScript("tsoa:gen");
-        else                                  console.log("Skipping tsoa generation");
+        await runNpmScript("tsoa", others);
         await runNpmScript("dev:run", filtered, true);
     } catch (err) {
         console.error(err.message);

@@ -7,18 +7,17 @@
     "type": "commonjs",
     "scripts": {
         "lint": "node scripts/lint.mjs",
+        "tsoa": "node scripts/tsoa.mjs",
         "dev": "node scripts/dev.mjs",
         "build": "node scripts/build.mjs",
         "start": "node scripts/start.mjs",
         "lint:run": "eslint 'src/**/*.[jt]s' --max-warnings=0 --cache",
         "nibble:run": "eslint-nibble 'src/**/*.[jt]s' --cache",
         "tsoa:spec": "tsoa spec",
-        "tsoa:routes": "tsoa routes",
-        "posttsoa:routes": "sed -i '1i// @ts-nocheck' src/routes/routes.ts && sed -i '1i/* eslint-disable */' src/routes/routes.ts",
-        "tsoa:gen": "npm run tsoa:spec && npm run tsoa:routes",
+        "tsoa:routes": "tsoa routes && sed -i '1i// @ts-nocheck' src/routes.ts && sed -i '1i/* eslint-disable */' src/routes.ts",
         "dev:run": "NODE_ENV='development' tsx watch src/index.ts",
-        "build:run": "tsc",
-        "postbuild:run": "tsc-alias",
+        "build:compile": "tsc",
+        "build:alias": "tsc-alias",
         "start:run": "NODE_ENV='production' node build/index.js"
     },
     "keywords": [
