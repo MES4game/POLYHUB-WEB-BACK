@@ -30,6 +30,7 @@ RegisterRoutes(app);
 
 // Swagger docs
 app.use("/api", swaggerUi.serve, swaggerUi.setup(SWAGGER_SPEC));
+
 /* eslint-enable */
 
 // Error handler
