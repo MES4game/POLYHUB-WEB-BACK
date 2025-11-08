@@ -1,5 +1,5 @@
 # Stage 1: Build Express app
-FROM node:24.11.0-alpine AS builder
+FROM node:24.11.0-trixie-slim AS builder
 WORKDIR /app
 COPY . .
 RUN npm ci \
@@ -11,7 +11,7 @@ RUN npm ci \
     && rm -f package*.json
 
 # Stage 2: Serve with Node.js
-FROM node:24.11.0-alpine
+FROM node:24.11.0-trixie-slim
 
 EXPOSE 3000
 VOLUME /mounted
