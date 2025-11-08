@@ -69,10 +69,10 @@ export async function register(body: BodyRegister): Promise<ServiceResponse<stri
     const verification_token = issueToken(mapAuthToken({ id }), id.toString(), "1h", true);
 
     await TRANSPORTER.sendMail({
-        from   : ENV.mail_user,
+        from   : ENV.smtp_user,
         to     : body.email,
-        subject: "Verify Your Email",
-        text   : `Click this link to verify your email: https://${ENV.dev ? "dev." : "api."}${ENV.host}${ENV.dev ? "/api" : ""}/auth/verify/${verification_token}. This link will expire in 1 hour.`,
+        subject: `[${ENV.host}] - Verify your email`,
+        text   : `Click this link to verify your email: https://api.${ENV.host}/auth/verify/${verification_token}. This link will expire in 1 hour.`,
     });
 
     return { code: 200, body: "User registered, please verify your email." };

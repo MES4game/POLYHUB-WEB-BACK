@@ -1,29 +1,33 @@
 # Stage 1: Build Express app
-FROM node:24-alpine AS builder
+FROM node:24.11.0-alpine AS builder
 WORKDIR /app
 COPY . .
-RUN ls -al \
-    && npm install -g npm@latest \
-    && npm ci \
-    && npm run build -- --lint-skip --build-outDir=/build
+RUN npm ci \
+    && npm run build -- --lint-skip --build-outDir=/build \
+    && cp package*.json /build/ \
+    && cd /build \
+    && npm ci --omit=dev --omit=optional \
+    && npm prune --production \
+    && rm -f package*.json
 
-# Stage 2: Final image
-FROM node:24-alpine
-
-VOLUME /mounted
-
-ENV DB_NAME=db \
-    DB_USER=user \
-    DB_PASS=secret
-
-COPY --from=docker_config_folder entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-WORKDIR /app
-RUN rm -rf ./*
-COPY --from=builder /build .
-RUN ls -al \
-    && ls -al /
+# Stage 2: Serve with Node.js
+FROM node:24.11.0-alpine
 
 EXPOSE 3000
-ENTRYPOINT ["/entrypoint.sh", "3000"]
+VOLUME /mounted
+
+ENV HOST=localhost \
+    PORT=3000 \
+    NODE_ENV=production \
+    SMTP_HOST=127.0.0.1 \
+    SMTP_PORT=25 \
+    SMTP_USER=admin \
+    DB_HOST=127.0.0.1 \
+    DB_PORT=3306 \
+    DB_NAME=db \
+    DB_USER=user
+
+WORKDIR /app
+COPY --chmod=555 --from=builder /build .
+
+CMD ["node", "index.js"]

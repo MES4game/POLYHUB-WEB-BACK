@@ -1,38 +1,48 @@
 services:
   back:
-    image: ${BACK_DOCKER_IMAGE}
-    container_name: ${BACK_DOCKER_CONTAINER}
+    image: ${DOCKER_IMAGE_BACK}
+    container_name: ${DOCKER_CONTAINER_BACK}
     restart: unless-stopped
-    environment:
-      - HOST=${BACK_ENV_HOST}
-      - MAIL_HOST=${BACK_ENV_MAIL_HOST}
-      - MAIL_PORT=${BACK_ENV_MAIL_PORT}
-      - MAIL_USER=${BACK_ENV_MAIL_USER}
-      - MAIL_PASS=${BACK_ENV_MAIL_PASS}
-      - DATA_FOLDER=${BACK_ENV_DATA_FOLDER}
-      - DB_NAME=${DB_ENV_DB_NAME}
-      - DB_USER=${DB_ENV_DB_USER}
-      - DB_PASS=${DB_ENV_DB_PASS}
     ports:
-      - "127.0.0.1:${BACK_DOCKER_PORT}:3000"
+      - "127.0.0.1:${DOCKER_PORT_BACK}:3000"
     volumes:
-      - ${BACK_DOCKER_MOUNTED}:/mounted
+      - ${DOCKER_MOUNTED_BACK}:/mounted
+    environment:
+      HOST: ${BACK_HOST}
+      PORT: 3000
+      NODE_ENV: production
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
     depends_on:
       - db
     networks:
       - polyhub-web-network
 
   db:
-    image: ${DB_DOCKER_IMAGE}
-    container_name: ${DB_DOCKER_CONTAINER}
+    image: ${DOCKER_IMAGE_DB}
+    container_name: ${DOCKER_CONTAINER_DB}
     restart: unless-stopped
-    environment:
-      - MYSQL_DATABASE=${DB_ENV_DB_NAME}
-      - MYSQL_USER=${DB_ENV_DB_USER}
-      - MYSQL_PASSWORD=${DB_ENV_DB_PASS}
-      - ADMIN_EMAIL=${DB_ENV_ADMIN_EMAIL}
     volumes:
-      - ${DB_DOCKER_MOUNTED}:/var/lib/mysql
+      - ${DOCKER_MOUNTED_DB}:/var/lib/mysql
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
     networks:
       - polyhub-web-network
 

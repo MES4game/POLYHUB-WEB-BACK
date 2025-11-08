@@ -1,7 +1,7 @@
 import app from "@/app";
 import { ENV } from "@/config/env.config";
 
-const SERVER = app.listen(ENV.port, "127.0.0.1", () => {
+const SERVER = app.listen(ENV.port, "0.0.0.0", () => {
     console.log(`Server running at http://127.0.0.1:${ENV.port.toString()}`);
 });
 

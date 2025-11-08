@@ -7,7 +7,6 @@
 !LICENSE
 !README.md
 
-!.dockerignore
 !.docker/
 !.docker/**
 
@@ -23,5 +22,4 @@
 !src/
 !src/**
 src/swagger.json
-src/routes/**
-!src/routes/.gitkeep
+src/routes.ts
