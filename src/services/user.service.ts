@@ -78,7 +78,7 @@ export async function userPostResetPassword(current_user?: User): Promise<Reques
             from   : ENV.smtp_user,
             to     : current_user.email,
             subject: `[${ENV.host}] - Confirm your password reset`,
-            text   : `Click this link to reset your password: https://${ENV.host}/password/reset/${password_token}. This link will expire in 1 hour.`,
+            text   : `Click this link to reset your password: ${ENV.front_url}/password/reset/${password_token}. This link will expire in 1 hour.`,
         });
     }
     catch(err) {
