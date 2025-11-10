@@ -5,7 +5,7 @@ import { RequestSuccess, RequestError } from "@/models/common.model";
 import { issueToken, verifyToken } from "@/config/jwt.config";
 import { TRANSPORTER } from "@/config/mail.config";
 import { ENV } from "@/config/env.config";
-import { isValidPassword } from "@/utils/regex.util";
+import { isValidEmail, isValidPassword } from "@/utils/regex.util";
 
 export async function userGetSelf(current_user?: User): Promise<RequestSuccess<User>> {
     if (current_user === undefined) throw new RequestError(404, "User not found");
@@ -68,15 +68,21 @@ export async function userPatchLastname(new_lastname: string, current_user?: Use
     return new RequestSuccess(204);
 }
 
-export async function userPostResetPassword(current_user?: User): Promise<RequestSuccess> {
-    if (current_user === undefined) throw new RequestError(404, "User not found");
+export async function userPostResetPassword(email: string): Promise<RequestSuccess> {
+    if (!isValidEmail(email)) throw new RequestError(404, "Invalid email format");
+
+    const query = "SELECT * FROM `users` WHERE `email` = ? LIMIT 1";
+    const [rows] = await DB.execute<RowDataPacket[]>(query, [email]);
+    const user = mapUser(rows[0]);
+
+    if (user.id === mapUser.schema.id.default) throw new RequestError(404, "User not found");
 
     try {
-        const password_token = issueToken(mapPatchPasswordToken({ id: current_user.id }), current_user.id.toString(), "1h", true);
+        const password_token = issueToken(mapPatchPasswordToken({ id: user.id }), user.id.toString(), "1h", true);
 
         await TRANSPORTER.sendMail({
             from   : ENV.smtp_user,
-            to     : current_user.email,
+            to     : user.email,
             subject: `[${ENV.host}] - Confirm your password reset`,
             text   : `Click this link to reset your password: ${ENV.front_url}/password/reset/${password_token}. This link will expire in 1 hour.`,
         });

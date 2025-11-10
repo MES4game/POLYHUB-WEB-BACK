@@ -83,11 +83,10 @@ export class UserController extends Controller {
     }
 
     @Post("password/reset")
-    @Security("auth")
     public async controllerUserGetResetPassword(
-        @Request() req: ExpressRequest,
+        @Body() body: BodyUserPatch,
     ): Promise<void> {
-        const response = await userPostResetPassword(req.user);
+        const response = await userPostResetPassword(body.value);
         this.setStatus(response.code);
 
         return response.body;
