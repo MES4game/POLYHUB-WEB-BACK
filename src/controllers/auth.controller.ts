@@ -1,6 +1,6 @@
-import { Controller, Route, Tags, Patch, Post, Path, Body } from "tsoa";
+import { Controller, Route, Tags, Post, Path, Body, Get } from "tsoa";
 import { BodyLogin, BodyRegister } from "../models/auth.model";
-import { authPostLogin, authPostRegister, authPatchVerifyEmail } from "@/services/auth.service";
+import { authPostLogin, authPostRegister, authGetVerifyEmail } from "@/services/auth.service";
 
 @Route("auth")
 @Tags("Auth")
@@ -15,11 +15,11 @@ export class AuthController extends Controller {
         return response.body;
     }
 
-    @Patch("verifyEmail/{token}")
+    @Get("verifyEmail/{token}")
     public async controllerAuthPatchVerifyEmail(
         @Path() token: string,
     ): Promise<void> {
-        const response = await authPatchVerifyEmail(token);
+        const response = await authGetVerifyEmail(token);
         this.setStatus(response.code);
 
         return response.body;

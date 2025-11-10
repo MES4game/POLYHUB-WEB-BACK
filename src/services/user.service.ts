@@ -1,4 +1,5 @@
 import { RowDataPacket } from "mysql2";
+import bcrypt from "bcryptjs";
 import { DB } from "@/config/db.config";
 import { User, mapPatchPasswordToken, mapUser } from "@/models/user.model";
 import { RequestSuccess, RequestError } from "@/models/common.model";
@@ -24,7 +25,7 @@ export async function userGetById(user_id: number): Promise<RequestSuccess<User>
     const [rows] = await DB.execute<RowDataPacket[]>(query, [user_id]);
     const user = mapUser(rows[0]);
 
-    if (user.id == mapUser.schema.id.default) throw new RequestError(404, "User not found");
+    if (user.id === mapUser.schema.id.default) throw new RequestError(404, "User not found");
 
     return new RequestSuccess(200, user);
 }
@@ -107,7 +108,7 @@ export async function userPatchPassword(token: string, new_password: string): Pr
 
     await DB.execute(
         "UPDATE `users_hashed_pass` SET `hashed_pass` = ? WHERE `user_id` = ?",
-        [new_password, id],
+        [await bcrypt.hash(new_password, 15), id],
     );
 
     return new RequestSuccess(204);

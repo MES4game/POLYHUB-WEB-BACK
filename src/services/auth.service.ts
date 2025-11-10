@@ -58,7 +58,7 @@ export async function authPostRegister(body: BodyRegister): Promise<RequestSucce
             from   : ENV.smtp_user,
             to     : body.email,
             subject: `[${ENV.host}] - Verify your email`,
-            text   : `Click this link to verify your email: https://api.${ENV.host}/auth/verify/${verification_token}. This link will expire in 1 hour.`,
+            text   : `Click this link to verify your email: https://${ENV.host}/auth/verifyEmail/${verification_token}. This link will expire in 1 hour.`,
         });
     }
     catch(err) {
@@ -73,7 +73,7 @@ export async function authPostRegister(body: BodyRegister): Promise<RequestSucce
     return new RequestSuccess(204);
 }
 
-export async function authPatchVerifyEmail(token: string): Promise<RequestSuccess> {
+export async function authGetVerifyEmail(token: string): Promise<RequestSuccess> {
     if (!token) throw new RequestError(400, "No token found");
 
     const { id } = verifyToken(token, mapAuthToken);

@@ -10,16 +10,20 @@ export class RequestSuccess<T extends object | undefined = undefined> {
     constructor(code: TContentCode, body: T);
     constructor(code: TNoContentCode);
     constructor(code: TContentCode | TNoContentCode, body?: T) {
-        if (code in CONTENT_CODES) {
+        if (CONTENT_CODES.includes(code as TContentCode)) {
             if (body === undefined) throw new RequestError(500, `Success result body must defined for code ${code.toString()}`);
 
             this.code = code;
             this.body = body;
+
+            return;
         }
 
-        if (code in NO_CONTENT_CODES) {
+        if (NO_CONTENT_CODES.includes(code as TNoContentCode)) {
             this.code = code;
             this.body = undefined as T;
+
+            return;
         }
 
         throw new RequestError(500, `Result code ${code.toString()} is not supported`);
