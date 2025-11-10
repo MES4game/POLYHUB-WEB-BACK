@@ -44,4 +44,4 @@ export const mapPatchPasswordToken = createMapper<PatchPasswordToken>({
 });
 
 export interface BodyUserPatch { value: string }
-export interface BodyUserPasswordPatch { token: string, new_password: string }
+export interface BodyUserPasswordPatch { token: string; new_password: string }
