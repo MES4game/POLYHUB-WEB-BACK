@@ -40,6 +40,10 @@ export async function userGetAll(): Promise<RequestSuccess<User[]>> {
 export async function userPatchPseudo(new_pseudo: string, current_user?: User): Promise<RequestSuccess> {
     if (current_user === undefined) throw new RequestError(404, "User not found");
 
+    if ((await DB.execute<RowDataPacket[]>("SELECT * FROM `users` WHERE `pseudo` = ? LIMIT 1", [new_pseudo]))[0].length > 0) {
+        throw new RequestError(409, "Pseudo already used by another user");
+    }
+
     const query = "UPDATE `users` SET `pseudo` = ? WHERE `id` = ?";
     await DB.execute(query, [new_pseudo, current_user.id]);
 

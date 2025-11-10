@@ -37,6 +37,10 @@ export async function authPostRegister(body: BodyRegister): Promise<RequestSucce
         throw new RequestError(409, "Email already used by another user");
     }
 
+    if ((await DB.execute<RowDataPacket[]>("SELECT * FROM `users` WHERE `pseudo` = ? LIMIT 1", [body.pseudo]))[0].length > 0) {
+        throw new RequestError(409, "Pseudo already used by another user");
+    }
+
     const id = (await DB.execute<ResultSetHeader>(
         "INSERT INTO `users` (`email`, `pseudo`, `firstname`, `lastname`) VALUES (?, ?, ?, ?)",
         [body.email, body.pseudo, body.firstname, body.lastname],
