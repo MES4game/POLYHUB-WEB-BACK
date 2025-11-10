@@ -113,3 +113,33 @@ export async function userPatchPassword(token: string, new_password: string): Pr
 
     return new RequestSuccess(204);
 }
+
+export async function userGetIsAdmin(user_id: number): Promise<RequestSuccess<{ is_admin: boolean }>> {
+    if (user_id <= 0) throw new RequestError(400, "Invalid user ID");
+
+    const query = "SELECT * FROM `users_roles` WHERE `user_id` = ?";
+    const [rows] = await DB.execute<RowDataPacket[]>(query, [user_id]);
+    const is_admin = rows.find((row) => { return row.role_id === 1; });
+
+    return new RequestSuccess(200, { is_admin: is_admin !== undefined });
+}
+
+export async function userGetIsModerator(user_id: number): Promise<RequestSuccess<{ is_moderator: boolean }>> {
+    if (user_id <= 0) throw new RequestError(400, "Invalid user ID");
+
+    const query = "SELECT * FROM `users_roles` WHERE `user_id` = ?";
+    const [rows] = await DB.execute<RowDataPacket[]>(query, [user_id]);
+    const is_moderator = rows.find((row) => { return row.role_id === 2; });
+
+    return new RequestSuccess(200, { is_moderator: is_moderator !== undefined });
+}
+
+export async function userGetIsTeacher(user_id: number): Promise<RequestSuccess<{ is_teacher: boolean }>> {
+    if (user_id <= 0) throw new RequestError(400, "Invalid user ID");
+
+    const query = "SELECT * FROM `users_roles` WHERE `user_id` = ?";
+    const [rows] = await DB.execute<RowDataPacket[]>(query, [user_id]);
+    const is_teacher = rows.find((row) => { return row.role_id === 3; });
+
+    return new RequestSuccess(200, { is_teacher: is_teacher !== undefined });
+}

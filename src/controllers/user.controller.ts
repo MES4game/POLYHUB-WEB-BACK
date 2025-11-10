@@ -10,6 +10,9 @@ import {
     userPatchLastname,
     userPostResetPassword,
     userPatchPassword,
+    userGetIsAdmin,
+    userGetIsModerator,
+    userGetIsTeacher,
 } from "@/services/user.service";
 
 @Route("user")
@@ -97,6 +100,39 @@ export class UserController extends Controller {
         @Body() body: BodyUserPasswordPatch,
     ): Promise<void> {
         const response = await userPatchPassword(body.token, body.new_password);
+        this.setStatus(response.code);
+
+        return response.body;
+    }
+
+    @Get("isAdmin/{id}")
+    @Security("auth", ["admin", "moderator"])
+    public async controllerUserGetIsAdmin(
+        @Path() id: number,
+    ): Promise<{ is_admin: boolean }> {
+        const response = await userGetIsAdmin(id);
+        this.setStatus(response.code);
+
+        return response.body;
+    }
+
+    @Get("isModerator/{id}")
+    @Security("auth", ["admin", "moderator"])
+    public async controllerUserGetIsModerator(
+        @Path() id: number,
+    ): Promise<{ is_moderator: boolean }> {
+        const response = await userGetIsModerator(id);
+        this.setStatus(response.code);
+
+        return response.body;
+    }
+
+    @Get("isTeacher/{id}")
+    @Security("auth", ["admin", "moderator"])
+    public async controllerUserGetIsTeacher(
+        @Path() id: number,
+    ): Promise<{ is_teacher: boolean }> {
+        const response = await userGetIsTeacher(id);
         this.setStatus(response.code);
 
         return response.body;
