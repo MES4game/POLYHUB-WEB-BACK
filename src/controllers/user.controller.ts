@@ -1,6 +1,6 @@
 import { type Request as ExpressRequest } from "express";
 import { Controller, Route, Tags, Get, Post, Patch, Security, Request, Path, Body } from "tsoa";
-import { User, BodyUserPatch } from "../models/user.model";
+import { User, BodyUserPatch, BodyUserPasswordPatch } from "../models/user.model";
 import {
     userGetSelf,
     userGetById,
@@ -58,25 +58,25 @@ export class UserController extends Controller {
         return response.body;
     }
 
-    @Patch("firstname/{new_firstname}")
+    @Patch("firstname")
     @Security("auth")
     public async controllerUserPatchFirstname(
-        @Path() new_firstname: string,
         @Request() req: ExpressRequest,
+        @Body() body: BodyUserPatch,
     ): Promise<void> {
-        const response = await userPatchFirstname(new_firstname, req.user);
+        const response = await userPatchFirstname(body.value, req.user);
         this.setStatus(response.code);
 
         return response.body;
     }
 
-    @Patch("lastname/{new_lastname}")
+    @Patch("lastname")
     @Security("auth")
     public async controllerUserPatchLastname(
-        @Path() new_lastname: string,
         @Request() req: ExpressRequest,
+        @Body() body: BodyUserPatch,
     ): Promise<void> {
-        const response = await userPatchLastname(new_lastname, req.user);
+        const response = await userPatchLastname(body.value, req.user);
         this.setStatus(response.code);
 
         return response.body;
@@ -93,12 +93,11 @@ export class UserController extends Controller {
         return response.body;
     }
 
-    @Patch("password/reset/{token}/{new_password}")
+    @Patch("password/reset")
     public async controllerUserPatchPassword(
-        @Path() token: string,
-        @Path() new_password: string,
+        @Body() body: BodyUserPasswordPatch,
     ): Promise<void> {
-        const response = await userPatchPassword(token, new_password);
+        const response = await userPatchPassword(body.token, body.new_password);
         this.setStatus(response.code);
 
         return response.body;
