@@ -1,35 +1,35 @@
-import { Controller, Route, Tags, Get, Post, Path, Body } from "tsoa";
+import { Controller, Route, Tags, Patch, Post, Path, Body } from "tsoa";
 import { BodyLogin, BodyRegister } from "../models/auth.model";
-import { login, register, verifyEmail } from "@/services/auth.service";
+import { authPostLogin, authPostRegister, authPatchVerifyEmail } from "@/services/auth.service";
 
 @Route("auth")
 @Tags("Auth")
 export class AuthController extends Controller {
     @Post("register")
-    public async register(
+    public async controllerAuthPostRegister(
         @Body() body: BodyRegister,
-    ): Promise<string> {
-        const response = await register(body);
+    ): Promise<void> {
+        const response = await authPostRegister(body);
         this.setStatus(response.code);
 
         return response.body;
     }
 
-    @Get("verifyEmail/{token}")
-    public async verifyEmail(
+    @Patch("verifyEmail/{token}")
+    public async controllerAuthPatchVerifyEmail(
         @Path() token: string,
-    ): Promise<string> {
-        const response = await verifyEmail(token);
+    ): Promise<void> {
+        const response = await authPatchVerifyEmail(token);
         this.setStatus(response.code);
 
         return response.body;
     }
 
     @Post("login")
-    public async login(
+    public async controllerAuthPostLogin(
         @Body() body: BodyLogin,
-    ): Promise<string> {
-        const response = await login(body);
+    ): Promise<{ token: string }> {
+        const response = await authPostLogin(body);
         this.setStatus(response.code);
 
         return response.body;

@@ -34,3 +34,14 @@ export const mapUserHashedPassword = createMapper<UserHashedPassword>({
     user_id    : createConverter(unknownToNumber, -1),  // eslint-disable-line @typescript-eslint/naming-convention
     hashed_pass: createConverter(unknownToString, ""),  // eslint-disable-line @typescript-eslint/naming-convention
 });
+
+export interface PatchPasswordToken {
+    id: number;
+}
+
+export const mapPatchPasswordToken = createMapper<PatchPasswordToken>({
+    id: createConverter(unknownToNumber, -1),
+});
+
+export interface BodyUserPatch { value: string }
+export interface BodyUserPasswordPatch { token: string; new_password: string }
