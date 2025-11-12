@@ -1,4 +1,5 @@
 INSERT INTO `users` (`email`, `pseudo`, `firstname`, `lastname`, `verified_email`) VALUES ('admin@example.com', 'ADMIN', 'administrator', '', TRUE);
+INSERT INTO `users_hashed_pass` (`user_id`, `hashed_pass`) VALUES (1, '');
 
 INSERT INTO `roles` (`name`) VALUES
     ('admin'),
