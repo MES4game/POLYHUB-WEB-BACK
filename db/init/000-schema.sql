@@ -1,12 +1,12 @@
 CREATE TABLE IF NOT EXISTS `users` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `email` VARCHAR(512) UNIQUE NOT NULL,
-    `pseudo` VARCHAR(64) NOT NULL,
+    `pseudo` VARCHAR(64) UNIQUE NOT NULL,
     `firstname` VARCHAR(256) NOT NULL,
     `lastname` VARCHAR(256) NOT NULL,
     `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `last_connection` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `deleted_on` DATETIME NULL,
+    `deleted_on` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
     `verified_email` BOOLEAN NOT NULL DEFAULT FALSE
 );
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `users_hashed_pass` (
 CREATE TABLE IF NOT EXISTS `roles` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `name` VARCHAR(128) UNIQUE NOT NULL,
-    `description` TEXT NULL
+    `description` VARCHAR(1024) NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS `users_roles` (
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `groups` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `parent_id` BIGINT UNSIGNED NULL,
     `name` VARCHAR(128) NOT NULL,
-    `description` TEXT NULL,
+    `description` VARCHAR(1024) NOT NULL DEFAULT '',
     UNIQUE(`parent_id`, `name`),
     FOREIGN KEY (`parent_id`)
         REFERENCES `groups`(`id`)
@@ -68,14 +68,14 @@ CREATE TABLE IF NOT EXISTS `users_groups` (
 CREATE TABLE IF NOT EXISTS `buildings` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `name` VARCHAR(128) UNIQUE NOT NULL,
-    `description` TEXT NULL
+    `description` VARCHAR(1024) NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS `rooms` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `building_id` BIGINT UNSIGNED NOT NULL,
     `name` VARCHAR(128) NOT NULL,
-    `description` TEXT NULL,
+    `description` VARCHAR(1024) NOT NULL DEFAULT '',
     `capacity` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     UNIQUE(`building_id`, `name`),
     FOREIGN KEY (`building_id`)
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `rooms` (
 CREATE TABLE IF NOT EXISTS `room_features` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `name` VARCHAR(128) UNIQUE NOT NULL,
-    `description` TEXT NULL
+    `description` VARCHAR(1024) NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS `rooms_room_features` (
@@ -107,19 +107,20 @@ CREATE TABLE IF NOT EXISTS `rooms_room_features` (
 CREATE TABLE IF NOT EXISTS `lessons` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `name` VARCHAR(64) UNIQUE NOT NULL,
-    `description` TEXT NULL
+    `description` VARCHAR(1024) NOT NULL DEFAULT '',
+    `color` VARCHAR(16) NOT NULL DEFAULT 'white'
 );
 
 CREATE TABLE IF NOT EXISTS `lesson_types` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `name` VARCHAR(64) UNIQUE NOT NULL,
-    `description` TEXT NULL
+    `description` VARCHAR(1024) NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS `lessons_groups` (
     `lesson_id` BIGINT UNSIGNED NOT NULL,
     `lesson_type_id` BIGINT UNSIGNED NOT NULL,
-    `lesson_arg` TINYINT UNSIGNED NULL,
+    `lesson_arg` TINYINT UNSIGNED NOT NULL,
     `group_id` BIGINT UNSIGNED NOT NULL,
     UNIQUE(`lesson_id`, `lesson_type_id`, `lesson_arg`, `group_id`),
     FOREIGN KEY (`lesson_id`)
@@ -140,9 +141,9 @@ CREATE TABLE IF NOT EXISTS `events` (
     `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL,
     `start` DATETIME NOT NULL,
     `end` DATETIME NOT NULL,
-    `lesson_id` BIGINT UNSIGNED NULL,
-    `lesson_type_id` BIGINT UNSIGNED NULL,
-    `lesson_arg` TINYINT UNSIGNED NULL,
+    `lesson_id` BIGINT UNSIGNED NOT NULL,
+    `lesson_type_id` BIGINT UNSIGNED NOT NULL,
+    `lesson_arg` TINYINT UNSIGNED NOT NULL DEFAULT 0,
     FOREIGN KEY (`lesson_id`)
         REFERENCES `lessons`(`id`)
         ON DELETE CASCADE
@@ -167,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `events_rooms` (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS `users_events` (
+CREATE TABLE IF NOT EXISTS `events_users` (
     `user_id` BIGINT UNSIGNED NOT NULL,
     `event_id` BIGINT UNSIGNED NOT NULL,
     UNIQUE(`user_id`, `event_id`),

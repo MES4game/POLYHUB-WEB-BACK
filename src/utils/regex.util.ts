@@ -3,7 +3,7 @@ export function isValidPassword(password: string): boolean {
 }
 
 export function isValidPseudo(pseudo: string): boolean {
-    return pseudo.length > 3 && pseudo.length < 65 && (/^(?:[\w!#$%&'*+/=?^_`{|}~-]+\.)*[\w!#$%&'*+/=?^_`{|}~-]+$/).test(pseudo);
+    return pseudo.length > 3 && pseudo.length < 65 && (/^[\w!#$%&'*+/=?^_`{|}~-]+$/).test(pseudo);
 }
 
 export function isValidDomain(domain: string): boolean {
@@ -16,5 +16,7 @@ export function isValidEmail(email: string): boolean {
     const index = email.indexOf("@");
     if (index === -1) return false;
 
-    return isValidPseudo(email.slice(0, index)) && isValidDomain(email.slice(index + 1));
+    return email.slice(0, index).split(".")
+        .every((val) => { return (/^[\w!#$%&'*+/=?^_`{|}~-]+$/).test(val); })
+        && isValidDomain(email.slice(index + 1));
 }

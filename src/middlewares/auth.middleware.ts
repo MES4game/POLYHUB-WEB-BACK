@@ -6,31 +6,33 @@ import { mapUser } from "@/models/user.model";
 import { User } from "../models/user.model";
 import { mapAuthToken } from "@/models/auth.model";
 import { unknowErrToString } from "@/utils/convert.util";
+import { RequestError } from "@/models/common.model";
+import { dbSelect, dbUpdate } from "@/utils/db.utils";
 
 export async function expressAuthentication(
     request: Request,
     security_name: string,
     scopes?: string[],
 ): Promise<User> {
-    if (security_name !== "auth") throw new Error("Not known security scheme (Internal Server Error)");
+    if (security_name !== "auth") throw new RequestError(500, "Not known security scheme");
 
-    let user = {} as User;
+    let user = mapUser({});
 
-    if (request.headers.authorization) {
+    try {
+        user = await authenticateFromToken(request.headers.authorization ?? "");
+    }
+    catch(error: unknown) {
+        if (scopes !== undefined) {
+            throw error;
+        }
+    }
+
+    if (scopes !== undefined) {
         try {
-            user = await authenticateFromToken(request.headers.authorization);
+            if (!await checkRoles(user.id, scopes)) throw new Error();
         }
-        catch(error: unknown) {
-            throw new Error(`__AUTH_ERROR__NO_LOGIN__: ${unknowErrToString(error)}`);
-        }
-
-        if (scopes) {
-            try {
-                if (!await checkRoles(user.id, scopes)) throw new Error("");
-            }
-            catch {
-                throw new Error(`Unauthorized, reserved to: ${scopes.join(", ")}`);
-            }
+        catch {
+            throw new RequestError(403, `Unauthorized, reserved to: ${scopes.join(", ")}`);
         }
     }
 
@@ -40,17 +42,28 @@ export async function expressAuthentication(
 }
 
 async function authenticateFromToken(auth_header: string): Promise<User> {
-    if (!auth_header) throw new Error("No Authorization header");
-
     const token = auth_header.replace("Bearer ", "");
-    const { id } = verifyToken(token, mapAuthToken);
 
-    const [rows] = await DB.execute<RowDataPacket[]>("SELECT * FROM `users` WHERE `id` = ?", [id]);
-    if (rows.length === 0) throw new Error("No user finded for login");
+    if (!token) {
+        throw new RequestError(401, "No token finded in Authorization header");
+    }
 
-    await DB.execute("UPDATE `users` SET `last_connection` = NOW() WHERE `id` = ?", [id]);
+    try {
+        const { id } = verifyToken(token, mapAuthToken);
 
-    return mapUser(rows[0] ?? {});
+        const [user] = await dbSelect(mapUser, "users", "`id` = ?", 1, [id]);
+
+        if (user === undefined || user.id === mapUser.schema.id.default) {
+            throw new Error("No user finded for login");
+        }
+
+        await dbUpdate("users", "`last_connection` = NOW()", "`id` = ?", [id]);
+
+        return user;
+    }
+    catch(error: unknown) {
+        throw new RequestError(401, `__AUTH_ERROR__NO_LOGIN__: ${unknowErrToString(error)}`);
+    }
 }
 
 export async function checkRoles(user_id: number, roles: string[]): Promise<boolean> {
