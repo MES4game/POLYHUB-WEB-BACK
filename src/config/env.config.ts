@@ -14,6 +14,7 @@ interface IEnv {
     smtp_port: number;
     smtp_user: string;
     smtp_pass: string;
+    front_url: string;
     langs    : string[];
 }
 
@@ -30,5 +31,6 @@ export const ENV: IEnv = {
     smtp_port: Number(process.env.SMTP_PORT ?? 25),
     smtp_user: process.env.SMTP_USER ?? "user@localhost",
     smtp_pass: process.env.SMTP_PASS ?? "secret",
+    front_url: process.env.FRONT_URL ?? "http://localhost:3000",
     langs    : ["en", "fr"],
 };

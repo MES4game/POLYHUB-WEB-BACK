@@ -12,3 +12,13 @@ export const mapRole = createMapper<Role>({
     name       : createConverter(unknownToString, ""),
     description: createConverter(unknownToString, ""),
 });
+
+export interface LinkUserRole {
+    user_id: number;
+    role_id: number;
+}
+
+export const mapLinkUserRole = createMapper<LinkUserRole>({
+    user_id: createConverter(unknownToNumber, -1),  // eslint-disable-line @typescript-eslint/naming-convention
+    role_id: createConverter(unknownToNumber, -1),  // eslint-disable-line @typescript-eslint/naming-convention
+});

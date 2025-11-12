@@ -28,3 +28,13 @@ export const mapRoomFeature = createMapper<RoomFeature>({
     name       : createConverter(unknownToString, ""),
     description: createConverter(unknownToString, ""),
 });
+
+export interface LinkRoomFeature {
+    room_id        : number;
+    room_feature_id: number;
+}
+
+export const mapLinkRoomFeature = createMapper<LinkRoomFeature>({
+    room_id        : createConverter(unknownToNumber, -1),  // eslint-disable-line @typescript-eslint/naming-convention
+    room_feature_id: createConverter(unknownToNumber, -1),  // eslint-disable-line @typescript-eslint/naming-convention
+});

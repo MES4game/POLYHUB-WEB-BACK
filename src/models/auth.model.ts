@@ -8,6 +8,3 @@ export interface AuthToken {
 export const mapAuthToken = createMapper<AuthToken>({
     id: createConverter(unknownToNumber, -1),
 });
-
-export interface BodyRegister { email: string; pseudo: string; password: string; firstname: string; lastname: string }
-export interface BodyLogin { email_pseudo: string; password: string }
