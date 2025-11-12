@@ -40,7 +40,7 @@ function rawObjToType<T>(schema: SchemaType<T>, obj?: unknown): T {
     return result;
 }
 
-type Mapper<T> = ((obj: unknown) => T) & { schema: SchemaType<T> };
+export type Mapper<T> = ((obj: unknown) => T) & { schema: SchemaType<T> };
 
 export function createMapper<T>(schema: SchemaType<T>): Mapper<T> {
     return Object.assign((obj?: unknown) => { return rawObjToType(schema, obj); }, { schema: schema });

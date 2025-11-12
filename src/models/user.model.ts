@@ -42,6 +42,3 @@ export interface PatchPasswordToken {
 export const mapPatchPasswordToken = createMapper<PatchPasswordToken>({
     id: createConverter(unknownToNumber, -1),
 });
-
-export interface BodyUserPatch { value: string }
-export interface BodyUserPasswordPatch { token: string; new_password: string }

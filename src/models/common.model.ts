@@ -1,7 +1,9 @@
-export const CONTENT_CODES = [200, 201, 206] as const;
-export const NO_CONTENT_CODES = [204, 205] as const;
-export type TContentCode = typeof CONTENT_CODES[number];
-export type TNoContentCode = typeof NO_CONTENT_CODES[number];
+const CONTENT_CODES = [200, 201, 206] as const;
+const NO_CONTENT_CODES = [204, 205] as const;
+
+type TContentCode = typeof CONTENT_CODES[number];
+
+type TNoContentCode = typeof NO_CONTENT_CODES[number];
 
 export class RequestSuccess<T extends object | undefined = undefined> {
     public code: TContentCode | TNoContentCode;
@@ -30,8 +32,9 @@ export class RequestSuccess<T extends object | undefined = undefined> {
     }
 }
 
-export const ERROR_CODES = [400, 401, 403, 404, 405, 409, 500] as const;
-export type TErrorCode = typeof ERROR_CODES[number];
+const ERROR_CODES = [400, 401, 403, 404, 405, 409, 500] as const;  // eslint-disable-line @typescript-eslint/no-unused-vars
+
+type TErrorCode = typeof ERROR_CODES[number];
 
 export class RequestError extends Error {
     public code: TErrorCode;
@@ -43,3 +46,5 @@ export class RequestError extends Error {
         Object.setPrototypeOf(this, RequestError.prototype);
     }
 }
+
+export interface ErrorResponse { message: string }
