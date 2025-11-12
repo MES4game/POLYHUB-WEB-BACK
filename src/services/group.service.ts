@@ -60,7 +60,7 @@ export async function groupPostCreate(parent_id: null | number, name: string, de
         "groups",
         `\`parent_id\` ${parent_id === null ? "IS" : "="} ? AND \`name\` = ?`,
         1,
-        [parent_id, name.trim()]
+        [parent_id, name.trim()],
     )).length > 0) {
         throw new RequestError(409, "A group with the same name and parent already exists");
     }
@@ -118,7 +118,7 @@ export async function groupPatchParentId(group_id: number, new_parent_id: null |
         "groups",
         `\`parent_id\` ${new_parent_id === null ? "IS" : "="} ? AND \`name\` = ?`,
         1,
-        [new_parent_id, group.name]
+        [new_parent_id, group.name],
     )).length > 0) {
         throw new RequestError(409, "A group with the same name already exists under the new parent");
     }

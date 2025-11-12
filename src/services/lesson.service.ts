@@ -238,7 +238,7 @@ export async function lessonGetLinkGroup(
             params.push(...lesson_ids);
         }
         else if (!Array.isArray(lesson_ids)) {
-            where_filter += `\`lesson_id\` = ? AND `;
+            where_filter += "`lesson_id` = ? AND ";
             params.push(lesson_ids);
         }
     }
@@ -255,7 +255,7 @@ export async function lessonGetLinkGroup(
             params.push(...lesson_type_ids);
         }
         else if (!Array.isArray(lesson_type_ids)) {
-            where_filter += `\`lesson_type_id\` = ? AND `;
+            where_filter += "`lesson_type_id` = ? AND ";
             params.push(lesson_type_ids);
         }
     }
@@ -272,7 +272,7 @@ export async function lessonGetLinkGroup(
             params.push(...lesson_args);
         }
         else if (!Array.isArray(lesson_args)) {
-            where_filter += `\`lesson_arg\` = ? AND `;
+            where_filter += "`lesson_arg` = ? AND ";
             params.push(lesson_args);
         }
     }

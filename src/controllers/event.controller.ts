@@ -1,4 +1,6 @@
-import { Controller, Route, Tags, Get, Post, Delete, Patch, Security, Path, Body, Query } from "tsoa";
+import {
+    Controller, Route, Tags, Get, Post, Delete, Patch, Security, Path, Body, Query,
+} from "tsoa";
 import { Event } from "../models/event.model";
 import {
     eventGetAll,
