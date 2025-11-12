@@ -1,4 +1,6 @@
-import { Controller, Route, Tags, Get, Post, Delete, Patch, Security, Path, Body, Query } from "tsoa";
+import {
+    Controller, Route, Tags, Get, Post, Delete, Patch, Security, Path, Body, Query,
+} from "tsoa";
 import { Lesson, LessonType } from "../models/lesson.model";
 import {
     lessonGetAll,

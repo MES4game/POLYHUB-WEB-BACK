@@ -103,12 +103,13 @@ export async function eventGetAllFiltered(
             const links = await dbSelect(
                 mapLinkEventRoom,
                 "events_rooms",
-                "`room_id` IN (" + room_id.map(() => "?").join(", ") + ")",
+                "`room_id` IN (" + room_id.map(() => { return "?"; }).join(", ") + ")",
                 1,
                 [...room_id],
             );
+
             events = events.filter((event) => {
-                return links.some((link) => link.event_id === event.id);
+                return links.some((link) => { return link.event_id === event.id; });
             });
         }
         else if (!Array.isArray(room_id)) {
@@ -119,8 +120,9 @@ export async function eventGetAllFiltered(
                 1,
                 [room_id],
             );
+
             events = events.filter((event) => {
-                return links.some((link) => link.event_id === event.id);
+                return links.some((link) => { return link.event_id === event.id; });
             });
         }
     }
@@ -255,7 +257,7 @@ export async function eventPatch(
         throw new RequestError(409, "An event with the same lesson already exists in the specified time range");
     }
 
-    const linkedRooms = await dbSelect(
+    const rooms = await dbSelect(
         mapLinkEventRoom,
         "events_rooms",
         "`event_id` = ?",
@@ -263,17 +265,17 @@ export async function eventPatch(
         [event_id],
     );
 
-    for (const link of linkedRooms) {
-        const conflictingEvents = await dbSelect(
+    for (const link of rooms) {
+        const conflicting_events = await dbSelect(
             mapEvent,
             "events",
-            `\`id\` != ? AND ((\`start\` BETWEEN ? AND ?) OR (\`end\` BETWEEN ? AND ?)) AND \`id\` IN (SELECT \`event_id\` FROM \`events_rooms\` WHERE \`room_id\` = ?)`,
+            "`id` != ? AND ((`start` BETWEEN ? AND ?) OR (`end` BETWEEN ? AND ?)) AND `id` IN (SELECT `event_id` FROM `events_rooms` WHERE `room_id` = ?)",  // eslint-disable-line @stylistic/max-len
             1,
             [event_id, new_start, new_end, new_start, new_end, link.room_id],
         );
 
-        if (conflictingEvents.length > 0) {
-            throw new RequestError(409, `Time conflict with another event in room ID ${link.room_id}`);
+        if (conflicting_events.length > 0) {
+            throw new RequestError(409, `Time conflict with another event in room ID ${link.room_id.toString()}`);
         }
     }
 
